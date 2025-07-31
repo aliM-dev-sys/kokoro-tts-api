@@ -2,13 +2,17 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-RUN apt update && \
-    apt install -y espeak-ng ffmpeg && \
-    apt clean
+# Install only necessary system packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends espeak-ng ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip and install dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
+# Copy only necessary files first to leverage Docker cache
 COPY main.py .
 
 EXPOSE 3000
